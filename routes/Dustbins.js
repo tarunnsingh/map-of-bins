@@ -1,9 +1,15 @@
 const express = require("express");
 const dustbinsRouter = express.Router();
 
+const mongoose = require("mongoose");
+const keys=require("../config/keys")
 
 
-const Dustbin = require("../models/dustbin");
+mongoose.connect(keys.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true});
+
+const Dustbin = require("../models/Dustbins");
+
+var conn = mongoose.connection;
 
 // dustbinsRouter.get("/", (req, res) => {
 //   console.log("RESS");
@@ -11,7 +17,7 @@ const Dustbin = require("../models/dustbin");
 
 dustbinsRouter.get('/dustbin/:lat.:long', (req, res) => {
   Dustbin.find({
-   Coordinates:
+   locations:
      { $near :
         {
           $geometry: { type: "Point",  coordinates: [ req.params.long, req.params.lat ] },
@@ -33,40 +39,51 @@ dustbinsRouter.get('/dustbin/:lat.:long', (req, res) => {
       });
 });
 
-// // Add Dustbin by Regional Admin
-// dustbinsRouter.post('/add/:region', (req, res) => {
-//   Dustbin.findOne({ id: req.body.dustbinId })
-//       .then((dustbin) => {
-//           if (dustbin) {
-//               return res.json({
-//                   message: "Dustbin Already Exist"
-//               });
-//           }
-//       })
-//   const dBin = new Dustbin({
-//       // id: req.body.dustbinId,
-//       // location: req.body.location,
-//       // stopover: true,
-//       // region: req.params.region,
-//       // status: -1,
-//       // address: req.body.dustbinAddress,
-//       // owner: "none"
-//   });
-//   dBin.save()
-//       .then((dBin) => {
-//           res.status(200).json({
-//               message: "Dustbin Added!",
-//               dustbin: dBin
-//           });
-//           console.log('dustbin Added!');
-//       })
-//       .catch(err => {
-//           res.json({
-//               message: "Cannot add dustbin due to the following error: " + err
-//           });
-//       })
-// });
+// Add Dustbin by Regional Admin
+dustbinsRouter.post('/dustbin/add', (req, res) => {
+  
+  
+  
+  // Dustbin.findOne({ id: req.body.dustbinId })
+  //     .then((dustbin) => {
+  //         if (dustbin) {
+  //             return res.json({
+  //                 message: "Dustbin Already Exist"
+  //             });
+  //         }
+  //     })
+conn.on("connected",function(){
+    console.log("Connection successfully");
+});
 
+conn.on("disconnected", function(){
+    console.log("disconnected connection");
+});
+
+conn.on("error", console.error.bind(console, 'connection error:'));
+
+  const dBin = new Dustbin({
+      dustbin_id: 123,
+      capacity: 70,
+      capacity_filled: 50,
+      location: {
+        "type": "Point",
+        "coordinates": [
+          25.1973,//latitude
+          55.2793 //longitude
+        ]
+      }
+  });
+  conn.once('open', function() {
+      dBin.save(function(err, res){
+
+           if(err) throw error;
+            console.log(res);
+            conn.close();
+        });
+    });
+
+ });
 
 
 
