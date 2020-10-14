@@ -32,6 +32,8 @@ app.get("/", (req, res) => {
   });
 });
 
+// FOLLOWING CODE IS USED WHEN DEPLOYED TO HEROKU
+
 // if (process.env.NODE_ENV === "production") {
 //   app.use(express.static("client/build"));
 //   app.get("*", (req, res) => {
