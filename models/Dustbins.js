@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const dustbinSchema = new mongoose.Schema({
     dustbin_id:{
         type: Number,
-        required:true
+        required:true,
+        primary: true
     },
     capacity:{
         type: Number,
