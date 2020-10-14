@@ -5,8 +5,6 @@ const passportCongfig = require("../passport");
 const JWT = require("jsonwebtoken");
 const User = require("../models/User");
 const keys = require("../config/keys");
-const path = require("path");
-const mongoose = require("mongoose");
 
 // RETURNS A SIGNED JSON WEB TOKEN
 const signedToken = (userID) => {
@@ -21,21 +19,41 @@ const signedToken = (userID) => {
 };
 
 userRouter.post("/register", (req, res) => {
-  const { username, password, role, originalName, email } = req.body;
-  User.findOne({ username }, (err, user) => {
-    if (err) responseHandler(err, null, null, null, res);
-    if (user) responseHandler(null, null, user, "usernameTaken", res);
+  console.log("HITTING REGISTER ROUTE");
+  const { email, password, name } = req.body;
+  console.log(email, password, name);
+  User.findOne({ email }, (err, user) => {
+    if (err)
+      return res
+        .status(500)
+        .json({ message: { msgBody: "An error occured.", msgError: true } });
+    if (user)
+      return res.status(400).json({
+        message: { msgBody: "Email already taken.", msgError: true },
+      });
     else {
+      console.log("CREATING NEW USER");
       const newUser = new User({
-        username,
-        password,
-        role,
-        originalName,
         email,
+        password,
+        name,
       });
       newUser.save((err) => {
-        if (err) responseHandler(err, "userOnSave", null, null, res);
-        else responseHandler(null, null, null, "createdAcc", res);
+        if (err)
+          return res.status(500).json({
+            message: {
+              msgBody: "Error occured while saving details to DB. Try Again!",
+              msgError: true,
+            },
+          });
+        else
+          return res.status(201).json({
+            message: {
+              msgBody:
+                "Account succesfully created. Please Login with the credentials.",
+              msgError: false,
+            },
+          });
       });
     }
   });
@@ -46,12 +64,12 @@ userRouter.post(
   passport.authenticate("local", { session: false }),
   (req, res) => {
     if (req.isAuthenticated()) {
-      const { _id, username, role, originalName, email } = req.user;
+      const { _id, name, email } = req.user;
       const token = signedToken(_id);
       res.cookie("access_token", token, { httpOnly: true, sameSite: true });
       res.status(200).json({
         isAuthenticated: true,
-        user: { username, role, originalName },
+        user: { email, name },
         message: { msgBody: "Login Succesful", msgError: false },
       });
     }
@@ -63,7 +81,11 @@ userRouter.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     res.clearCookie("access_token");
-    res.json({ user: { username: "", role: "" }, success: true });
+    res.json({
+      isAuthenticated: false,
+      user: { email: "", name: "" },
+      message: { msgBody: "Logged Out Successfully", msgError: false },
+    });
   }
 );
 
@@ -71,25 +93,12 @@ userRouter.get(
   "/authenticated",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const {
-      username,
-      role,
-      originalName,
-      userIntro,
-      createdAt,
-      lastUpdated,
-      coverPhotoUrl,
-    } = req.user;
+    const { email, name } = req.user;
     res.status(200).json({
       isAuthenticated: true,
       user: {
-        username,
-        role,
-        originalName,
-        userIntro,
-        createdAt,
-        lastUpdated,
-        coverPhotoUrl,
+        email,
+        name,
       },
     });
   }

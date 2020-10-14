@@ -40,14 +40,17 @@ passport.use(
 
 // middleware for authentication using password and username, first time when user logs in.
 passport.use(
-  new LocalStrategy((username, password, done) => {
-    User.findOne({ username }, (err, user) => {
-      //if something bad happens to db
-      if (err) return done(err);
-      //if user not on db
-      if (!user) return done(null, false);
-      // check for password
-      user.comparePassword(password, done);
-    });
-  })
+  new LocalStrategy(
+    { usernameField: "email", passwordField: "password" },
+    (email, password, done) => {
+      User.findOne({ email }, (err, user) => {
+        //if something bad happens to db
+        if (err) return done(err);
+        //if user not on db
+        if (!user) return done(null, false);
+        // check for password
+        user.comparePassword(password, done);
+      });
+    }
+  )
 );
