@@ -11,7 +11,7 @@ export default {
     else
       return {
         isAuthenticated: false,
-        user: { username: "", role: "" },
+        user: { email: "", name: "" },
         message: { msgBody: "Invalid Credentials", msgError: true },
       };
   },
@@ -34,6 +34,6 @@ export default {
   isAuthenticated: async () => {
     const res = await fetch("api/user/authenticated");
     if (res.status !== 401) return res.json().then((data) => data);
-    else return { isAuthenticated: false, user: { username: "", role: "" } };
+    else return { isAuthenticated: false, user: { email: "", name: "" } };
   },
 };

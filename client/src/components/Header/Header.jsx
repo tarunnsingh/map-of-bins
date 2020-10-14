@@ -37,7 +37,10 @@ export default function ButtonAppBar() {
           <Typography variant="h6" className={classes.title}>
             Clean & Green City
           </Typography>
-          <Button color="inherit">Profile</Button>
+          <Button color="inherit" href="/">
+            Home
+          </Button>
+          <Button color="inherit">Logout</Button>
         </Toolbar>
       </AppBar>
     </div>
