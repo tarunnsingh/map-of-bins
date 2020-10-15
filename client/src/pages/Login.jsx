@@ -21,6 +21,10 @@ import authService from "../services/auth-service";
 // auth context import
 import { AuthContext } from "../context/authcontext";
 
+import Alert from "../components/Alert/Alert";
+
+import CircularProgress from "@material-ui/core/CircularProgress";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
@@ -59,7 +63,8 @@ const useStyles = makeStyles((theme) => ({
 export default function SignInSide(props) {
   const classes = useStyles();
   const [user, setUser] = useState({ email: "", password: "" });
-  const [msg, setMessage] = useState(null);
+  const [msg, setMessage] = useState({ msgError: false, message: "" });
+  const [loading, setIsLoading] = useState(false);
 
   const authContext = useContext(AuthContext);
 
@@ -68,6 +73,7 @@ export default function SignInSide(props) {
   };
 
   const onSubmit = (e) => {
+    setIsLoading(true);
     e.preventDefault();
     authService.login(user).then((data) => {
       const { isAuthenticated, user, message } = data;
@@ -76,8 +82,10 @@ export default function SignInSide(props) {
         authContext.setUser(user);
         authContext.setIsAuthenticated(isAuthenticated);
         props.history.push("/profile");
+        setIsLoading(false);
       } else {
         setMessage(message);
+        setIsLoading(false);
       }
     });
   };
@@ -117,19 +125,21 @@ export default function SignInSide(props) {
               autoComplete="current-password"
               onChange={onChange}
             />
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-            >
-              Sign In
-            </Button>
+            {loading ? (
+              <Typography align="center">
+                <CircularProgress color="secondary" />
+              </Typography>
+            ) : (
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+              >
+                Sign In
+              </Button>
+            )}
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2" aria-disabled>
@@ -140,6 +150,11 @@ export default function SignInSide(props) {
                 <Link href="/register" variant="body2">
                   {"Don't have an account? Register Now."}
                 </Link>
+              </Grid>
+            </Grid>
+            <Grid container>
+              <Grid item>
+                <Alert msgError={msg.msgError} message={msg.msgBody} />
               </Grid>
             </Grid>
           </form>

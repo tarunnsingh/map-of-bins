@@ -13,6 +13,10 @@ import Container from "@material-ui/core/Container";
 
 import AuthService from "../services/auth-service";
 
+import CircularProgress from "@material-ui/core/CircularProgress";
+
+import Alert from "../components/Alert/Alert";
+
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -38,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 export default function SignUp(props) {
   const classes = useStyles();
   const [user, setUser] = useState({ email: "", name: "", password: "" });
-  const [message, setMessage] = useState(null);
+  const [msg, setMessage] = useState({ message: "", msgError: false });
   const [loading, setIsLoading] = useState(false);
 
   const onChange = (e) => {
@@ -55,6 +59,7 @@ export default function SignUp(props) {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    setIsLoading(true);
     AuthService.register(user).then((data) => {
       const { message } = data;
       setMessage(message);
@@ -124,15 +129,21 @@ export default function SignUp(props) {
               />
             </Grid>
           </Grid>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Register
-          </Button>
+          {loading ? (
+            <Typography align="center">
+              <CircularProgress color="secondary" />
+            </Typography>
+          ) : (
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Register
+            </Button>
+          )}
           <Grid container justify="center">
             <Grid item>
               <Typography justify="center">
@@ -141,6 +152,11 @@ export default function SignUp(props) {
                   Sign in
                 </Button>
               </Typography>
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item>
+              <Alert msgError={msg.msgError} message={msg.msgBody} />
             </Grid>
           </Grid>
         </form>
