@@ -50,7 +50,7 @@ export default function ButtonAppBar() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            Clean & Green City
+            Clean-City
           </Typography>
           <Button color="inherit" href="/">
             Home
