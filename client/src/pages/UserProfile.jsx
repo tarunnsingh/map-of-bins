@@ -6,6 +6,8 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 
+import { usePosition } from "../hooks/useLocationHook";
+
 import AuthService from "../services/auth-service";
 import { AuthContext } from "../context/authcontext";
 
@@ -13,6 +15,8 @@ import Header from "../components/Header/Header";
 import { Paper } from "@material-ui/core";
 
 import ProfileCard from "../components/ProfileCard/ProfileCard";
+
+import DustbinService from "../services/dustbinservice";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -35,9 +39,18 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UserPage() {
   const classes = useStyles();
+  const { latitude, longitude, error } = usePosition();
   const { user, setUser, isAuthenticated, setIsAuthenticated } = useContext(
     AuthContext
   );
+
+  const handleNearestDustbin = (e) => {
+    DustbinService.nearestDustbin({ lat: latitude, long: longitude }).then(
+      (data) => {
+        console.log(data);
+      }
+    );
+  };
 
   return (
     <>
@@ -49,6 +62,11 @@ export default function UserPage() {
             {user ? <ProfileCard name={user.name} email={user.email} /> : null}
           </Paper>
         </div>
+
+        <Button variant="outlined" onClick={handleNearestDustbin}>
+          {" "}
+          GET NEAREST DUSTBINS{" "}
+        </Button>
       </Container>
     </>
   );

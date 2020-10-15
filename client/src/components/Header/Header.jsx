@@ -6,6 +6,9 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
+import { AuthContext } from "../../context/authcontext";
+import { useContext } from "react";
+import AuthService from "../../services/auth-service";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,6 +24,18 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ButtonAppBar() {
   const classes = useStyles();
+  const { isAuthenticated, setIsAuthenticated, setUser } = useContext(
+    AuthContext
+  );
+
+  const onClickLogoutHandler = () => {
+    AuthService.logout().then((data) => {
+      if (!data.isAuthenticated) {
+        setUser(data.user);
+        setIsAuthenticated(false);
+      }
+    });
+  };
 
   return (
     <div className={classes.root}>
@@ -40,7 +55,25 @@ export default function ButtonAppBar() {
           <Button color="inherit" href="/">
             Home
           </Button>
-          <Button color="inherit">Logout</Button>
+          {isAuthenticated ? (
+            <div>
+              <Button color="inherit" href="/profile">
+                Profile
+              </Button>
+              <Button color="inherit" onClick={onClickLogoutHandler}>
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <div>
+              <Button color="inherit" href="/login">
+                Login
+              </Button>
+              <Button color="inherit" href="/register">
+                Register
+              </Button>
+            </div>
+          )}
         </Toolbar>
       </AppBar>
     </div>
