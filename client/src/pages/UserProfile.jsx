@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function UserPage() {
+export default function UserPage(props) {
   const classes = useStyles();
   const { latitude, longitude, error } = usePosition();
   const { user, setUser, isAuthenticated, setIsAuthenticated } = useContext(
@@ -48,6 +48,7 @@ export default function UserPage() {
     DustbinService.nearestDustbin({ lat: latitude, long: longitude }).then(
       (data) => {
         console.log(data);
+        props.history.push("/");
       }
     );
   };
