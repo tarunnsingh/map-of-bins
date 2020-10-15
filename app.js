@@ -7,7 +7,7 @@ const passport = require("passport");
 const morganMiddleware = require("./morgan-color");
 const cookieParser = require("cookie-parser");
 const passportCongfig = require("./passport");
-
+const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -31,19 +31,19 @@ mongoose.connect(
   }
 );
 
-app.get("/", (req, res) => {
-  res.status(200).json({
-    message: "You have hit the clean-city server",
-    error: false,
-  });
-});
+// app.get("/", (req, res) => {
+//   res.status(200).json({
+//     message: "You have hit the clean-city server",
+//     error: false,
+//   });
+// });
 
 // FOLLOWING CODE IS USED WHEN DEPLOYED TO HEROKU
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("client/build"));
+  app.use(express.static(path.join(__dirname, "client", "build")));
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
   });
 }
 
