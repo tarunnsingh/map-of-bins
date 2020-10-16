@@ -9,7 +9,7 @@ export default {
         },
       }
     );
-    if (res.status == 200) return res.json().then((data) => data);
+    if (res.status === 200) return res.json().then((data) => data);
     else
       return {
         dustbinsFound: null,
@@ -25,7 +25,7 @@ export default {
         "Content-Type": "application/json",
       },
     });
-    if (res.status == 200) return res.json().then((data) => data);
+    if (res.status === 200) return res.json().then((data) => data);
     else
       return {
         dustbinAdded: null,

@@ -7,28 +7,18 @@ import Grid from "@material-ui/core/Grid";
 import DustbinService from "../../services/dustbinservice";
 import { usePosition } from "../../hooks/useLocationHook";
 import { makeStyles } from "@material-ui/core/styles";
+import { InfoBox } from "@react-google-maps/api";
+import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 
 const containerStyle = {
   width: window.screen.width,
-  height: window.screen.height - 208,
+  height: window.screen.height - 235,
 };
 
 const markerPosition = [
   {
     lat: 28.778,
     lng: 80.47,
-  },
-  {
-    lat: 28.45,
-    lng: 80.11,
-  },
-  {
-    lat: 28.25,
-    lng: 79.95,
-  },
-  {
-    lat: 28.22,
-    lng: 80.012,
   },
 ];
 const styles = makeStyles({
@@ -52,17 +42,10 @@ function Map() {
 
   const [mapSize, setMapSize] = useState({ width: width, height: height });
   const [markers, setMarkers] = useState([]);
+  const [dustbins, setDustbins] = useState({});
+  const [clickedDustbin, setClickedDustbin] = useState(null);
+
   //TRYING TO GET USERS CURRENT LOCATION AND UDATE ON MAP
-  useEffect(() => {
-    // navigator.geolocation.getCurrentPosition(function (position) {
-    //   console.log("Latitude is :", position.coords.latitude);
-    //   console.log("Longitude is :", position.coords.longitude);
-    //   setCurrentCord({
-    //     lat: parseInt(position.coords.latitude),
-    //     lng: parseInt(position.coords.latitude),
-    //   });
-    // });
-  }, []);
 
   function handleLoad(map) {
     mapRef.current = map;
@@ -78,7 +61,10 @@ function Map() {
   const handleNearestDustbin = (e) => {
     DustbinService.nearestDustbin({ lat: latitude, long: longitude }).then(
       (data) => {
+        console.log("GOT ===> ", data);
         const dustbins = data.dustbins;
+
+        setDustbins(dustbins);
         Object.keys(dustbins).forEach((dustbin) => {
           markerPosition.push({
             lat: dustbins[dustbin]["location"]["coordinates"][0],
@@ -89,18 +75,35 @@ function Map() {
       }
     );
   };
+
+  const handleDustbinClick = (pos) => {
+    console.log("CLICKED: ", pos);
+    const filteredDustbin = Object.keys(dustbins).forEach((dustbin) => {
+      if (
+        dustbins[dustbin]["location"]["coordinates"][0] === pos.lat &&
+        dustbins[dustbin]["location"]["coordinates"][1] === pos.lng
+      ) {
+        console.log(typeof dustbins[dustbin]);
+        setClickedDustbin(dustbins[dustbin]);
+      }
+    });
+  };
+
+  const handlePopupClick = () => {
+    clickedDustbin.capacity = clickedDustbin.capacity - 1;
+  };
   const onUnmount = React.useCallback(function callback(map) {
     setMap(null);
   }, []);
 
   const onMarkerLoad = (marker) => {
-    console.log("marker: ", marker);
+    //sdsd
   };
 
   return (
     <>
       <Grid container>
-        <Grid item alignContent="right">
+        <Grid item>
           <Button
             variant="outlined"
             className={classes.nearestButton}
@@ -122,9 +125,38 @@ function Map() {
             >
               {markers.map((pos, idx) => {
                 return (
-                  <Marker key={idx} onLoad={onMarkerLoad} position={pos} />
+                  <Marker
+                    key={idx}
+                    onLoad={onMarkerLoad}
+                    position={pos}
+                    onClick={(e) => handleDustbinClick(pos)}
+                  />
                 );
               })}
+              {clickedDustbin ? (
+                <InfoBox
+                  onDomReady={handlePopupClick}
+                  position={{
+                    lat: clickedDustbin["location"]["coordinates"][0],
+                    lng: clickedDustbin["location"]["coordinates"][1],
+                  }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "yellow",
+                      opacity: 0.75,
+                      padding: 12,
+                    }}
+                  >
+                    <div style={{ fontSize: 16, fontColor: `#08233B` }}>
+                      Dustbin Capacity Left: {clickedDustbin.capacity}
+                    </div>
+                    <Button>
+                      Add Waste <AddCircleOutlineIcon />
+                    </Button>
+                  </div>
+                </InfoBox>
+              ) : null}
             </GoogleMap>
           </LoadScript>
         </Grid>

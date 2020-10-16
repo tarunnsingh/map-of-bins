@@ -8,7 +8,6 @@ import Container from "@material-ui/core/Container";
 
 import { usePosition } from "../hooks/useLocationHook";
 
-import AuthService from "../services/auth-service";
 import { AuthContext } from "../context/authcontext";
 
 import Header from "../components/Header/Header";
@@ -39,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UserPage(props) {
   const classes = useStyles();
-  const { latitude, longitude, error } = usePosition();
+  const { latitude, longitude } = usePosition();
   const { user } = useContext(AuthContext);
 
   const handleNearestDustbin = (e) => {

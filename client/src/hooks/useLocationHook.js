@@ -19,6 +19,10 @@ export const usePosition = () => {
       setError("Geolocation is not supported");
       return;
     }
+    // const location = geo.getCurrentPosition(function (position) {
+    //   console.log("lat - nw", position.coords.latitude);
+    //   console.log("lng - nw", position.coords.longitude);
+    // });
     const watcher = geo.watchPosition(onChange, onError);
     return () => geo.clearWatch(watcher);
   }, []);
