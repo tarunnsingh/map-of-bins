@@ -40,15 +40,16 @@ const styles = makeStyles({
 
 function Map() {
   const classes = styles();
+  const { latitude, longitude, error } = usePosition();
   const mapRef = useRef(null);
   const [center, setCenter] = useState({
-    lat: 28.351839,
-    lng: 79.9461592,
+    lat: latitude,
+    lng: longitude,
   });
 
   const [map, setMap] = React.useState(null);
   const { height, width } = useWindowDimensions();
-  const { latitude, longitude, error } = usePosition();
+
   const [mapSize, setMapSize] = useState({ width: width, height: height });
   const [markers, setMarkers] = useState([]);
   //TRYING TO GET USERS CURRENT LOCATION AND UDATE ON MAP
@@ -70,7 +71,8 @@ function Map() {
   function handleCenter() {
     if (!mapRef.current) return;
     const newPos = mapRef.current.getCenter().toJSON();
-    setCenter(newPos);
+    console.log(newPos);
+    setCenter({ lat: newPos.lat, lng: newPos.lng });
   }
 
   const handleNearestDustbin = (e) => {
@@ -112,8 +114,8 @@ function Map() {
           <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAP_KEY}>
             <GoogleMap
               mapContainerStyle={containerStyle}
-              center={center}
-              zoom={10}
+              center={{ lat: latitude, lng: longitude }}
+              zoom={18}
               onLoad={handleLoad}
               onDragEnd={handleCenter}
               onUnmount={onUnmount}
